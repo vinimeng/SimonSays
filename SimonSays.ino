@@ -9,27 +9,55 @@
 #define COMMANDFONT u8g2_font_t0_12b_tr
 #define GLYPHFONT u8g2_font_iconquadpix_m_all
 #define BAUDRATE 9600
-#define PLAYBTN 0x0054
-#define UPBTN 0x0057
-#define DOWNBTN 0x0053
-#define LEFTBTN 0x0041
-#define RIGHTBTN 0x0044
+#define PLAYBTN 84
+#define UPBTN 87
+#define DOWNBTN 83
+#define LEFTBTN 65
+#define RIGHTBTN 68
 
 U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C u8g2(U8G2_R0);
+bool menu;
+int keysToPress[15];
+int keyPressed;
+int previousKey;
+String key;
 
 void setup(void) {
   u8g2.begin();
   Serial.begin(BAUDRATE);
-  randomSeed(analogRead(RANDOMSEEDPIN));
+  //randomSeed(analogRead(RANDOMSEEDPIN));
+  previousKey = 1023;
+  menu = true;
 }
 
 void loop(void) {
-  //Serial.println(analogRead(KEYBOARDPIN));
-  Serial.println(analogRead(RANDOMSEEDPIN));
+  if (menu) {
+    displayTitle();
+  } else {
+    u8g2.clearBuffer();
+    displayStop();
+    u8g2.sendBuffer();
+  }
 
-  u8g2.clearBuffer();
-  displayStop();
-  u8g2.sendBuffer();
+  keyPressed = analogRead(KEYBOARDPIN);
+  Serial.println(keyPressed);
+  
+  if (keyPressed <= 10) { // Botão esquerdo
+    key = "ESQUERDO";
+  } else if (keyPressed >= 25 && keyPressed <= 35) { // Botão cima
+    key = "CIMA";
+  } else if (keyPressed >= 80 && keyPressed <= 90) { // Botão baixo
+    key = "BAIXO";
+  } else if (keyPressed >= 160 && keyPressed <= 170) { // Botão direito
+    key = "DIREITO";
+  } else if (keyPressed >= 345 && keyPressed <= 355) { // Botão play
+    key = "PLAY";
+  }
+
+  if (keyPressed != previousKey && keyPressed < 1000) {
+    Serial.println(key);
+    previousKey = keyPressed;
+  }
 }
 
 void displayTitle() {

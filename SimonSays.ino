@@ -16,18 +16,24 @@
 #define RIGHTBTN 68
 
 U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C u8g2(U8G2_R0);
+
+const byte NONE = 0;
+const byte LEFT = 1;
+const byte UP = 2;
+const byte RIGHT = 3;
+const byte DOWN = 4;
+const byte PLAY = 5;
 bool menu;
-int keysToPress[15];
-int keyPressed;
-int previousKey;
-String key;
+byte key;
 
 void setup(void) {
   u8g2.begin();
   Serial.begin(BAUDRATE);
-  //randomSeed(analogRead(RANDOMSEEDPIN));
-  previousKey = 1023;
+  randomSeed(analogRead(RANDOMSEEDPIN));
+  pinMode(KEYBOARDPIN, INPUT_PULLUP);
+
   menu = true;
+  key = NONE;
 }
 
 void loop(void) {
@@ -39,25 +45,48 @@ void loop(void) {
     u8g2.sendBuffer();
   }
 
-  keyPressed = analogRead(KEYBOARDPIN);
-  Serial.println(keyPressed);
+  key = getKey();
   
-  if (keyPressed <= 10) { // Botão esquerdo
-    key = "ESQUERDO";
-  } else if (keyPressed >= 25 && keyPressed <= 35) { // Botão cima
-    key = "CIMA";
-  } else if (keyPressed >= 80 && keyPressed <= 90) { // Botão baixo
-    key = "BAIXO";
-  } else if (keyPressed >= 160 && keyPressed <= 170) { // Botão direito
-    key = "DIREITO";
-  } else if (keyPressed >= 345 && keyPressed <= 355) { // Botão play
-    key = "PLAY";
+  if (key == LEFT) {
+    Serial.println("LEFT");
+  }
+  if (key == RIGHT) {
+    Serial.println("RIGHT");
+  }
+  if (key == UP) {
+    Serial.println("UP");
+  }
+  if (key == DOWN) {
+    Serial.println("DOWN");
+  }
+  if (key == PLAY) {
+    Serial.println("PLAY");
+    menu = !menu;
   }
 
-  if (keyPressed != previousKey && keyPressed < 1000) {
-    Serial.println(key);
-    previousKey = keyPressed;
+  delay(100);
+}
+
+byte getKey() {
+  int val = 0;
+  byte button = 0;
+  val = analogRead(KEYBOARDPIN);
+
+  button = NONE;
+
+  if (val <= 35) {
+    button = LEFT;
+  } else if ((val >= 40) && (val <= 90)) {
+    button = UP;
+  } else if ((val >= 100) && (val <= 140)) {
+    button = DOWN;
+  } else if ((val >= 170) && (val <= 250)) {
+    button = RIGHT;
+  } else if ((val >= 290) && (val <= 500)) {
+    button = PLAY;
   }
+
+  return button;
 }
 
 void displayTitle() {

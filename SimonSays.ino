@@ -24,7 +24,14 @@ const byte RIGHT = 3;
 const byte DOWN = 4;
 const byte PLAY = 5;
 bool menu;
+bool showSequence;
+bool wrong;
+bool win;
 byte key;
+byte arrayToChoose[] = { LEFT, LEFT, RIGHT, DOWN, DOWN, UP, RIGHT, RIGHT, UP, LEFT };
+byte keysToPress[10];
+int sequenceUser;
+int sequence;
 
 void setup(void) {
   u8g2.begin();
@@ -32,39 +39,173 @@ void setup(void) {
   randomSeed(analogRead(RANDOMSEEDPIN));
   pinMode(KEYBOARDPIN, INPUT_PULLUP);
 
+  sequenceUser = 0;
+  sequence = 0;
+  showSequence = false;
   menu = true;
   key = NONE;
+  wrong = false;
+  win = false;
 }
 
 void loop(void) {
   if (menu) {
     displayTitle();
   } else {
-    u8g2.clearBuffer();
-    displayStop();
-    u8g2.sendBuffer();
+    displaySequence();
+
+    if (wrong || win || showSequence) {
+      delay(1500);
+      showSequence = false;
+
+      if (wrong || win) {
+        sequenceUser = 0;
+        sequence = 0;
+        wrong = false;
+        win = false;
+        menu = true;
+      }
+    }
   }
 
   key = getKey();
-  
+
   if (key == LEFT) {
     Serial.println("LEFT");
+
+    if (keysToPress[sequenceUser] == LEFT) {
+      sequenceUser++;
+      if (sequenceUser == sequence) {
+        sequence++;
+        if (sequence > 10) {
+          win = true;
+        } else {
+          showSequence = true;
+        }
+      }
+    } else {
+      wrong = true;
+    }
   }
   if (key == RIGHT) {
     Serial.println("RIGHT");
+
+    if (keysToPress[sequenceUser] == RIGHT) {
+      sequenceUser++;
+      if (sequenceUser == sequence) {
+        sequence++;
+        if (sequence > 10) {
+          win = true;
+        } else {
+          showSequence = true;
+        }
+      }
+    } else {
+      wrong = true;
+    }
   }
   if (key == UP) {
     Serial.println("UP");
+
+    if (keysToPress[sequenceUser] == UP) {
+      sequenceUser++;
+      if (sequenceUser == sequence) {
+        sequence++;
+        if (sequence > 10) {
+          win = true;
+        } else {
+          showSequence = true;
+        }
+      }
+    } else {
+      wrong = true;
+    }
   }
   if (key == DOWN) {
     Serial.println("DOWN");
+
+    if (keysToPress[sequenceUser] == DOWN) {
+      sequenceUser++;
+      if (sequenceUser == sequence) {
+        sequence++;
+        if (sequence > 10) {
+          win = true;
+        } else {
+          showSequence = true;
+        }
+      }
+    } else {
+      wrong = true;
+    }
   }
   if (key == PLAY) {
     Serial.println("PLAY");
     menu = !menu;
+
+    if (menu) {
+      for (int i = 0; i < 10; i++) {
+        keysToPress[i] = arrayToChoose[random(10)];
+      }
+
+      sequenceUser = 0;
+      sequence = 1;
+      showSequence = true;
+    }
   }
 
   delay(100);
+}
+
+void displaySequence() {
+  int limit = sequenceUser;
+
+  if (showSequence) {
+    limit = sequence;
+  }
+
+  u8g2.clearBuffer();
+  u8g2.setFont(GLYPHFONT);
+
+  if (!wrong && !win) {
+    for (int i = 0; i < limit; i++) {
+      int x = (i / 5) > 0 ? 18 * (i - 5) : 18 * i;
+      int y = (i / 5) > 0 ? 32 : 12;
+      if (keysToPress[i] == LEFT) {
+        u8g2.drawGlyph(x, y, LEFTBTN);
+      } else if (keysToPress[i] == UP) {
+        u8g2.drawGlyph(x, y, UPBTN);
+      } else if (keysToPress[i] == RIGHT) {
+        u8g2.drawGlyph(x, y, RIGHTBTN);
+      } else if (keysToPress[i] == DOWN) {
+        u8g2.drawGlyph(x, y, DOWNBTN);
+      }
+    }
+  }
+
+  u8g2.drawGlyph(108, 20, PLAYBTN);
+  u8g2.setFont(COMMANDFONT);
+  u8g2.drawStr(99, 32, "Parar");
+
+  if (wrong) {
+    u8g2.drawStr(0, 32, "Errou!!!");
+  }
+  if (win) {
+    u8g2.drawStr(0, 32, "Ganhou!!!");
+  }
+
+  u8g2.sendBuffer();
+}
+
+void displayTitle() {
+  u8g2.clearBuffer();
+  u8g2.setFont(TITLEFONT);
+  u8g2.drawStr(0, 12, "MESTRE");
+  u8g2.drawStr(0, 32, "MANDOU");
+  u8g2.setFont(GLYPHFONT);
+  u8g2.drawGlyph(102, 20, PLAYBTN);
+  u8g2.setFont(COMMANDFONT);
+  u8g2.drawStr(87, 32, "Iniciar");
+  u8g2.sendBuffer();
 }
 
 byte getKey() {
@@ -87,23 +228,4 @@ byte getKey() {
   }
 
   return button;
-}
-
-void displayTitle() {
-  u8g2.clearBuffer();
-  u8g2.setFont(TITLEFONT);
-  u8g2.drawStr(0, 12, "MESTRE");
-  u8g2.drawStr(0, 32, "MANDOU");
-  u8g2.setFont(GLYPHFONT);
-  u8g2.drawGlyph(102, 20, PLAYBTN);
-  u8g2.setFont(COMMANDFONT);
-  u8g2.drawStr(87, 32, "Iniciar");
-  u8g2.sendBuffer();
-}
-
-void displayStop() {
-  u8g2.setFont(GLYPHFONT);
-  u8g2.drawGlyph(108, 20, PLAYBTN);
-  u8g2.setFont(COMMANDFONT);
-  u8g2.drawStr(99, 32, "Parar");
 }

@@ -105,7 +105,7 @@ void loop(void) {
     }
   }
 
-  delay(100);
+  delay(150);
 }
 
 void keyAction(bool wright) {

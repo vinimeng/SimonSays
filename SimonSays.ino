@@ -73,76 +73,28 @@ void loop(void) {
   if (key == LEFT) {
     Serial.println("LEFT");
 
-    if (keysToPress[sequenceUser] == LEFT) {
-      sequenceUser++;
-      if (sequenceUser == sequence) {
-        sequence++;
-        if (sequence > 10) {
-          win = true;
-        } else {
-          showSequence = true;
-        }
-      }
-    } else {
-      wrong = true;
-    }
+    keyAction(keysToPress[sequenceUser] == LEFT);
   }
   if (key == RIGHT) {
     Serial.println("RIGHT");
 
-    if (keysToPress[sequenceUser] == RIGHT) {
-      sequenceUser++;
-      if (sequenceUser == sequence) {
-        sequence++;
-        if (sequence > 10) {
-          win = true;
-        } else {
-          showSequence = true;
-        }
-      }
-    } else {
-      wrong = true;
-    }
+    keyAction(keysToPress[sequenceUser] == RIGHT);
   }
   if (key == UP) {
     Serial.println("UP");
 
-    if (keysToPress[sequenceUser] == UP) {
-      sequenceUser++;
-      if (sequenceUser == sequence) {
-        sequence++;
-        if (sequence > 10) {
-          win = true;
-        } else {
-          showSequence = true;
-        }
-      }
-    } else {
-      wrong = true;
-    }
+    keyAction(keysToPress[sequenceUser] == UP);
   }
   if (key == DOWN) {
     Serial.println("DOWN");
 
-    if (keysToPress[sequenceUser] == DOWN) {
-      sequenceUser++;
-      if (sequenceUser == sequence) {
-        sequence++;
-        if (sequence > 10) {
-          win = true;
-        } else {
-          showSequence = true;
-        }
-      }
-    } else {
-      wrong = true;
-    }
+    keyAction(keysToPress[sequenceUser] == DOWN);
   }
   if (key == PLAY) {
     Serial.println("PLAY");
     menu = !menu;
 
-    if (menu) {
+    if (!menu) {
       for (int i = 0; i < 10; i++) {
         keysToPress[i] = arrayToChoose[random(10)];
       }
@@ -154,6 +106,23 @@ void loop(void) {
   }
 
   delay(100);
+}
+
+void keyAction(bool wright) {
+  if (wright) {
+    sequenceUser++;
+    if (sequenceUser == sequence) {
+      sequenceUser = 0;
+      sequence++;
+      if (sequence > 10) {
+        win = true;
+      } else {
+        showSequence = true;
+      }
+    }
+  } else {
+    wrong = true;
+  }
 }
 
 void displaySequence() {

@@ -103,9 +103,9 @@ void loop(void) {
       sequence = 1;
       showSequence = true;
     }
-  }
 
-  delay(150);
+    delay(150);
+  }
 }
 
 void keyAction(bool wright) {
@@ -123,6 +123,8 @@ void keyAction(bool wright) {
   } else {
     wrong = true;
   }
+
+  delay(150);
 }
 
 void displaySequence() {
